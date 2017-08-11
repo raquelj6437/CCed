@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <!-- This is a wide open CSP declaration. To lock this down for production, see below. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
+
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <title>CC'ed</title>
+</head>
+
+<body></body>
+
+<script id="login-tpl" type="text/javascript">
+  <h1>CCed</h1>
+  <p>Log In</p>
+  <form>
+    Username:<br>
+    <input type="text" name="username"><br/>
+    Password:<br>
+    <input type="text" name="password">
+  </form>
+  <p><a href = "studentMap.html">Log In</a></p>
+  <p class="button" data-href="employerOrStudent">Sign Up</p>
+</script>
+
+<script id="signup-employer-student-tpl" text="text/javascript">
+  <form>
+    <p class= "button" data-href="signUpEmployer">Employer</p>
+    <p class= "button" data-href="signUpStudent">Student</p>
+  </form>
+</script>
+
+<script id="signup-employer-tpl" text="text/javascript">
+    <form id="employer-signup-form">
+      First Name:<br>
+      <input type="text" name="firstname"><br>
+      Last Name:<br>
+      <input type="text" name="lastname"><br>
+      Email:<br>
+      <input type="text" name="email"><br>
+      Username:<br>
+      <input type="text" name="username"><br>
+      Password:<br>
+      <input type="text" name="password"><br>
+      <p class= "button" id="employer-signup">Sign Up</p>
+    </form>
+</script>
+
+<script id="signup-student-tpl" text="text/javascript">
+  <form id="student-signup-form">
+    First Name:<br>
+    <input type="text" name="firstname"><br>
+    Last Name:<br>
+    <input type="text" name="lastname"><br>
+    Email:<br>
+    <input type="text" name="email"><br>
+    Username:<br>
+    <input type="text" name="username"><br>
+    Password:<br>
+    <input type="text" name="password"><br>
+    <p class= "button" id="student-signup">Sign Up</p>
+  </form>
+</script>
+
+<script id = "student-map-tpl" text="text/javascript">
+  <p class= "button" data-href="studentMap">map</p>
+  <p class= "button" data-href="studentUpcoming">upcoming</p>
+  <p class= "button" data-href="studentTimesheet">timesheet</p>
+
+  <div id="googleMap" style="width:100%;height:400px;"></div>
+</script>
+
+<script id = "student-upcoming-tpl" text="text/javascript">
+  <p class= "button" data-href="studentMap">map</p>
+  <p class= "button" data-href="studentUpcoming">upcoming</p>
+  <p class= "button" data-href="studentTimesheet">timesheet</p>
+</script>
+
+<script id = "student-timesheet-tpl" text="text/javascript">
+  <p class= "button" data-href="studentMap">map</p>
+  <p class= "button" data-href="studentUpcoming">upcoming</p>
+  <p class= "button" data-href="studentTimesheet">timesheet</p>
+</script>
+
+<script id = "employer-schedule-tpl" text="text/javascript">
+  <p class= "button" data-href="employerSchedule">Schedule</p>
+  <p class= "button" data-href="employerRoster">Roster</p>
+</script>
+
+<script id = "employer-roster-tpl" text="text/javascript">
+  <p class= "button" data-href="employerSchedule">Schedule</p>
+  <p class= "button" data-href="employerRoster">Roster</p>
+</script>
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-2.2.4.min.js"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjNWiW2AT7db_A64_JZIOG0_z_6gjmSfc"></script>
+<script type="text/javascript" src="cordova.js"></script>
+<script type="text/javascript" src="js/index.js"></script>
+<script type="text/javascript">
+    app.initialize();
+
+    // Set our template variables from our script tags
+    var templates = {
+      login: $('#login-tpl').html(),
+      employerOrStudent: $('#signup-employer-student-tpl').html(),
+      signUpEmployer: $('#signup-employer-tpl').html(),
+      signUpStudent: $('#signup-student-tpl').html(),
+      studentMap: $('#student-map-tpl').html(),
+      studentUpcoming: $('#student-upcoming-tpl').html(),
+      studentTimesheet: $('#student-timesheet-tpl').html(),
+      employerSchedule: $('#employer-schedule-tpl').html(),
+      employerRoster: $('#employer-roster-tpl').html()
+    };
+
+    var pageLoadFunctions = {
+      studentMap: function() {
+        window.navigator.geolocation.getCurrentPosition(function(position) {
+
+          var map = new google.maps.Map(document.getElementById("googleMap"), {
+            center: new google.maps.LatLng(position.coords.latitude,position.coords.longitude),
+            zoom: 5,
+          });
+        });
+
+
+      },
+    };
+
+    function goToPage(template) {
+      $('body').html(templates[template]);
+
+      // Check if we have anything to do on page load
+      if (pageLoadFunctions[template]) {
+        pageLoadFunctions[template]();
+      }
+    }
+
+    // Render homepage
+    goToPage('studentMap');
+
+    // Navigation button click
+    $('body').on('click', '.button', function(event) {
+      var template = $(event.target).attr('data-href');
+      goToPage(template);
+    });
+
+    // Student signup click
+    $('body').on('click', '#student-signup', function() {
+      var form = $('#student-signup-form');
+      var firstName= form.find('input[name=firstname]').val();
+      var lastName= form.find('input[name=lastname]').val();
+      var email= form.find('input[name=email]').val();
+      var username= form.find('input[name=username]').val();
+      var password= form.find('input[name=password]').val();
+
+      // Create student in firebase
+      writeStudentData(username, firstName, email, lastName, password);
+
+      goToPage('studentMap');
+    });
+
+    $('body').on('click', '#employer-signup', function() {
+      var form = $('#employer-signup-form');
+      var firstName= form.find('input[name=firstname]').val();
+      var lastName= form.find('input[name=lastname]').val();
+      var email= form.find('input[name=email]').val();
+      var username= form.find('input[name=username]').val();
+      var password= form.find('input[name=password]').val();
+
+      writeEmployerData(username, email, firstName, lastName, password);
+
+      goToPage('employerSchedule')
+    });
+</script>
+
+
+<script src="https://www.gstatic.com/firebasejs/4.2.0/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyAqOiEtrBxFAFvG9O1tiUk8WXiXUZX2shk",
+    authDomain: "community-connected-13553.firebaseapp.com",
+    databaseURL: "https://community-connected-13553.firebaseio.com",
+    projectId: "community-connected-13553",
+    storageBucket: "community-connected-13553.appspot.com",
+    messagingSenderId: "12935296391"
+  };
+  firebase.initializeApp(config);
+
+  function writeStudentData(userId, email, firstName, lastName, password) {
+    firebase.database().ref('Students/' + userId).set({
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
+      password: password
+    });
+  }
+  function writeEmployerData(userId, email, firstName, lastName, password) {
+    firebase.database().ref('Employers/' + userId).set({
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
+      password: password
+    });
+  }
+</script>
+
+</html>
