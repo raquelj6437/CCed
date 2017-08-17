@@ -15,15 +15,15 @@
 <body></body>
 
 <script id="login-tpl" type="text/javascript">
-  <h1>CCed</h1>
+  <h1 id="CCED">CCed</h1>
   <p>Log In</p>
-  <form>
+  <form id = "login-form">
     Username:<br>
     <input type="text" name="username"><br/>
     Password:<br>
-    <input type="text" name="password">
+    <input type="password" name="password">
   </form>
-  <p><a href = "studentMap.html">Log In</a></p>
+  <div id = "login-button"><p class="button" >Log In</p></div>
   <p class="button" data-href="employerOrStudent">Sign Up</p>
 </script>
 
@@ -67,37 +67,61 @@
 </script>
 
 <script id = "student-map-tpl" text="text/javascript">
+  <p class= "button" id = "log-out">Log out</p>
   <p class= "button" data-href="studentMap">map</p>
   <p class= "button" data-href="studentUpcoming">upcoming</p>
   <p class= "button" data-href="studentTimesheet">timesheet</p>
 
   <div id="googleMap" style="width:100%;height:400px;"></div>
+
+  <p>opportunities</p>
+</script>
+
+<script>
+
 </script>
 
 <script id = "student-upcoming-tpl" text="text/javascript">
+  <p class= "button" id = "log-out">Log out</p>
   <p class= "button" data-href="studentMap">map</p>
   <p class= "button" data-href="studentUpcoming">upcoming</p>
   <p class= "button" data-href="studentTimesheet">timesheet</p>
 </script>
 
 <script id = "student-timesheet-tpl" text="text/javascript">
+  <p class= "button" id = "log-out">Log out</p>
   <p class= "button" data-href="studentMap">map</p>
   <p class= "button" data-href="studentUpcoming">upcoming</p>
   <p class= "button" data-href="studentTimesheet">timesheet</p>
 </script>
 
 <script id = "employer-schedule-tpl" text="text/javascript">
+  <p class= "button" id = "log-out">Log out</p>
   <p class= "button" data-href="employerSchedule">Schedule</p>
   <p class= "button" data-href="employerRoster">Roster</p>
+
+  <form id = "employer-events">
+    Opportunity name:<br>
+    <input type="text" name="events"><br>
+    Dates:<br>
+    <input type="text" name="dates"><br>
+    Time:<br>
+    <input type="text" name="time"><br>
+    Zip Code:<br>
+    <input type="text" name="zipCode"><br>
+    <p id= "add-button">add</p>
+  </form>
 </script>
 
 <script id = "employer-roster-tpl" text="text/javascript">
+  <p class= "button" id = "log-out">Log out</p>
   <p class= "button" data-href="employerSchedule">Schedule</p>
   <p class= "button" data-href="employerRoster">Roster</p>
 </script>
 
 <script type="text/javascript" src="http://code.jquery.com/jquery-2.2.4.min.js"></script>
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjNWiW2AT7db_A64_JZIOG0_z_6gjmSfc"></script>
+<script type="text/javascript" src="https://www.gstatic.com/firebasejs/4.2.0/firebase.js"></script>
 <script type="text/javascript" src="cordova.js"></script>
 <script type="text/javascript" src="js/index.js"></script>
 <script type="text/javascript">
@@ -125,8 +149,6 @@
             zoom: 5,
           });
         });
-
-
       },
     };
 
@@ -140,7 +162,7 @@
     }
 
     // Render homepage
-    goToPage('studentMap');
+    goToPage('login');
 
     // Navigation button click
     $('body').on('click', '.button', function(event) {
@@ -175,10 +197,50 @@
 
       goToPage('employerSchedule')
     });
+
+    $('body').on('click', '#login-button', function() {
+      var form = $('#login-form');
+      var username= form.find('input[name=username]').val();
+      var password= form.find('input[name=password]').val();
+
+      //log in for students
+      var ref = firebase.database().ref("Students");
+      ref.once("value")
+        .then(function(snapshot) {
+          var key = snapshot.key;
+          var firebasePassword = snapshot.child(username+"/password").val();
+          if (password == firebasePassword){
+            goToPage('studentMap')
+          }
+        });
+
+        //log in for employer
+        var ref = firebase.database().ref("Employers");
+        ref.once("value")
+          .then(function(snapshot) {
+            var key = snapshot.key;
+            var firebasePassword = snapshot.child(username+"/password").val();
+            if (password == firebasePassword){
+              goToPage('employerSchedule')
+            }
+          });
+        })
+
+      $('body').on('click', '#log-out', function() {
+        goToPage("login")
+      });
+
+      $('body').on('click', '#add-button', function() {
+        var form = $('#employer-events');
+        var addEvent= form.find('input[name=events]').val();
+        var addDate= form.find('input[name=dates]').val();
+        var addTime= form.find('input[name=time]').val();
+        var addZip= form.find('input[name=zipCode]').val();
+
+        writeEventData(addEvent, addDate, addTime, addZip);
+      });
 </script>
 
-
-<script src="https://www.gstatic.com/firebasejs/4.2.0/firebase.js"></script>
 <script>
   // Initialize Firebase
   var config = {
@@ -199,12 +261,21 @@
       password: password
     });
   }
+
   function writeEmployerData(userId, email, firstName, lastName, password) {
     firebase.database().ref('Employers/' + userId).set({
       email: email,
       firstName: firstName,
       lastName: lastName,
       password: password
+    });
+  }
+
+  function writeEventData(employerEvent, date, time, zip) {
+    firebase.database().ref('Events/' + employerEvent).set({
+      date: date,
+      time: time,
+      zip: zip
     });
   }
 </script>
