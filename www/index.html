@@ -27,14 +27,14 @@
   <p class="button" data-href="employerOrStudent">Sign Up</p>
 </script>
 
-<script id="signup-employer-student-tpl" text="text/x-jQuery-tmpl">
+<script id="signup-employer-student-tpl" type="text/x-jQuery-tmpl">
   <form>
     <p class= "button" data-href="signUpEmployer">Employer</p>
     <p class= "button" data-href="signUpStudent">Student</p>
   </form>
 </script>
 
-<script id="signup-employer-tpl" text="text/x-jQuery-tmpl">
+<script id="signup-employer-tpl" type="text/x-jQuery-tmpl">
     <form id="employer-signup-form">
       First Name:<br>
       <input type="text" name="firstname"><br>
@@ -50,7 +50,7 @@
     </form>
 </script>
 
-<script id="signup-student-tpl" text="text/x-jQuery-tmpl">
+<script id="signup-student-tpl" type="text/x-jQuery-tmpl">
   <form id="student-signup-form">
     First Name:<br>
     <input type="text" name="firstname"><br>
@@ -66,7 +66,7 @@
   </form>
 </script>
 
-<script id = "student-map-tpl" text="text/x-jQuery-tmpl">
+<script id = "student-map-tpl" type="text/x-jQuery-tmpl">
   <p class= "button" id = "log-out">Log out</p>
   <p class= "button" data-href="studentMap">map</p>
   <p class= "button" data-href="studentUpcoming">upcoming</p>
@@ -82,21 +82,21 @@
 
 </script>
 
-<script id = "student-upcoming-tpl" text="text/x-jQuery-tmpl">
+<script id = "student-upcoming-tpl" type="text/x-jQuery-tmpl">
   <p class= "button" id = "log-out">Log out</p>
   <p class= "button" data-href="studentMap">map</p>
   <p class= "button" data-href="studentUpcoming">upcoming</p>
   <p class= "button" data-href="studentTimesheet">timesheet</p>
 </script>
 
-<script id = "student-timesheet-tpl" text="text/x-jQuery-tmpl">
+<script id = "student-timesheet-tpl" type="text/x-jQuery-tmpl">
   <p class= "button" id = "log-out">Log out</p>
   <p class= "button" data-href="studentMap">map</p>
   <p class= "button" data-href="studentUpcoming">upcoming</p>
   <p class= "button" data-href="studentTimesheet">timesheet</p>
 </script>
 
-<script id = "employer-schedule-tpl" text="text/x-jQuery-tmpl">
+<script id = "employer-schedule-tpl" type="text/x-jQuery-tmpl">
   <p class= "button" id = "log-out">Log out</p>
   <p class= "button" data-href="employerSchedule">Schedule</p>
   <p class= "button" data-href="employerRoster">Roster</p>
@@ -121,7 +121,7 @@
   </form>
 </script>
 
-<script id = "employer-roster-tpl" text="text/x-jQuery-tmpl">
+<script id = "employer-roster-tpl" type="text/x-jQuery-tmpl">
   <p class= "button" id = "log-out">Log out</p>
   <p class= "button" data-href="employerSchedule">Schedule</p>
   <p class= "button" data-href="employerRoster">Roster</p>
@@ -171,12 +171,15 @@
       }
     };
 
-    function appendEvent(eventName, eventData) {
-      var event = $('<li></li>').append('<p>'+eventData.employer+' - ' +eventName+ '</p>');
+    function appendEvent(eventID, eventData) {
+      var signUpButton = $('<input type="button" value="Sign Up" />').data('eventID', eventID);
+
+      var event = $('<li></li>').append('<p>'+eventData.employer+' - ' +eventData.name+ '</p>');
       var eventInfo = $('<ol></ol>').
-        append('<li>'+eventData.date+'</li>').
+        append('<li>'+eventData.date.join(', ')+'</li>').
         append('<li>'+eventData.time+'</li>').
-        append('<li>'+eventData.zip+'</li>');
+        append('<li>'+eventData.zip+'</li>').
+        append($('<li></li>').append(signUpButton));
       $('.opportunities').append(event).append(eventInfo);
     }
 
@@ -267,19 +270,11 @@
         }).get();
 
 
-        var addTime= form.find('input[name=time]').val();
-        var addZip= form.find('input[name=zipCode]').val();
+        var addTime = form.find('input[name=time]').val();
+        var addZip = form.find('input[name=zipCode]').val();
         var employer = form.find('input[name="employer"]').val();
 
         writeEventData(addEvent, checkedValues, addTime, addZip, employer);
-      });
-
-      $('body').on('click', '#signUpEvent', function() {
-        var employerName
-        var employerEvent
-        var studentName
-
-        writeRegisteredStudentData(employerName, employerEvent, studentName);
       });
 </script>
 
@@ -314,7 +309,8 @@
   }
 
   function writeEventData(employerEvent, date, time, zip, employer) {
-    firebase.database().ref('Events/' + employerEvent).set({
+    firebase.database().ref('Events').push().set({
+      name: employerEvent,
       date: date,
       time: time,
       zip: zip,
