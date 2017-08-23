@@ -172,14 +172,20 @@
     };
 
     function appendEvent(eventID, eventData) {
-      var signUpButton = $('<input type="button" value="Sign Up" />').data('eventID', eventID);
+      var registerEventButton = $('<input type="button" value="Sign Up" data-eventid="'+eventID+'" />');
+      registerEventButton.on('click', function(event) {
+        event.preventDefault();
+        var signUpData = $(this).data();
+        // signUpData.eventid
+        // signUpData.studentid
+      });
 
       var event = $('<li></li>').append('<p>'+eventData.employer+' - ' +eventData.name+ '</p>');
       var eventInfo = $('<ol></ol>').
         append('<li>'+eventData.date.join(', ')+'</li>').
         append('<li>'+eventData.time+'</li>').
         append('<li>'+eventData.zip+'</li>').
-        append($('<li></li>').append(signUpButton));
+        append($('<li></li>').append(registerEventButton));
       $('.opportunities').append(event).append(eventInfo);
     }
 
@@ -211,7 +217,7 @@
       var password= form.find('input[name=password]').val();
 
       // Create student in firebase
-      writeStudentData(username, firstName, email, lastName, password);
+      writeStudentData(username, email, firstName, lastName, password);
 
       goToPage('studentMap');
     });
@@ -234,28 +240,29 @@
       var username= form.find('input[name=username]').val();
       var password= form.find('input[name=password]').val();
 
-      //log in for students
-      var ref = firebase.database().ref("Students");
-      ref.once("value")
-        .then(function(snapshot) {
-          var key = snapshot.key;
-          var firebasePassword = snapshot.child(username+"/password").val();
-          if (password == firebasePassword){
-            goToPage('studentMap')
+      // log in for students
+      var studentsRef = firebase.database().ref("Students");
+      studentsRef.orderByChild('username').equalTo(username).limitToFirst(1).once('value', function(snapshot) {
+        if (snapshot.val() != null) {
+          snapshot.forEach(function(studentsSnapshot) {
+            window.sessionStorage.setItem('userID', studentsSnapshot.key);
+            goToPage('studentMap');
+          });
+        }
+      });
+
+        // log in for employer
+        var employerRef = firebase.database().ref("Employers");
+        employerRef.orderByChild('username').equalTo(username).limitToFirst(1).once('value', function(snapshot) {
+          var userData = snapshot.val();
+          if (userData != null) {
+            snapshot.forEach(function(employerSnapshot) {
+              window.sessionStorage.setItem('userID', employerSnapshot.key);
+              goToPage('employerSchedule', username);
+            });
           }
         });
-
-        //log in for employer
-        var ref = firebase.database().ref("Employers");
-        ref.once("value")
-          .then(function(snapshot) {
-            var key = snapshot.key;
-            var firebasePassword = snapshot.child(username+"/password").val();
-            if (password == firebasePassword){
-              goToPage('employerSchedule', username);
-            }
-          });
-        })
+      });
 
       $('body').on('click', '#log-out', function() {
         goToPage("login")
@@ -290,8 +297,9 @@
   };
   firebase.initializeApp(config);
 
-  function writeStudentData(userId, email, firstName, lastName, password) {
-    firebase.database().ref('Students/' + userId).set({
+  function writeStudentData(username, email, firstName, lastName, password) {
+    firebase.database().ref('Students').push().set({
+      username: username,
       email: email,
       firstName: firstName,
       lastName: lastName,
@@ -299,8 +307,9 @@
     });
   }
 
-  function writeEmployerData(userId, email, firstName, lastName, password) {
-    firebase.database().ref('Employers/' + userId).set({
+  function writeEmployerData(username, email, firstName, lastName, password) {
+    firebase.database().ref('Employers').push().set({
+      username: username,
       email: email,
       firstName: firstName,
       lastName: lastName,
@@ -319,7 +328,7 @@
   }
 
   function writeRegisteredStudentData(employerName, eventName, studentName) {
-    firebase.database().ref('registeredEvents/' + employerEvent).set({
+    firebase.database().ref('RegisteredEvents/' + employerEvent).set({
       employerName: employerName,
       eventName: eventName,
       studentName: studentName
