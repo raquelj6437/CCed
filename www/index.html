@@ -175,9 +175,7 @@
       var registerEventButton = $('<input type="button" value="Sign Up" data-eventid="'+eventID+'" />');
       registerEventButton.on('click', function(event) {
         event.preventDefault();
-        var signUpData = $(this).data();
-        // signUpData.eventid
-        // signUpData.studentid
+        writeRegisteredStudentData($(this).data().eventid, window.sessionStorage.getItem('userID'));
       });
 
       var event = $('<li></li>').append('<p>'+eventData.employer+' - ' +eventData.name+ '</p>');
@@ -327,11 +325,10 @@
     });
   }
 
-  function writeRegisteredStudentData(employerName, eventName, studentName) {
-    firebase.database().ref('RegisteredEvents/' + employerEvent).set({
-      employerName: employerName,
-      eventName: eventName,
-      studentName: studentName
+  function writeRegisteredStudentData(eventID, studentID) {
+    firebase.database().ref('RegisteredEvents').push().set({
+      eventID: eventID,
+      studentID: studentID
     });
   }
 </script>
