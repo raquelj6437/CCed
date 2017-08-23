@@ -243,24 +243,28 @@
       studentsRef.orderByChild('username').equalTo(username).limitToFirst(1).once('value', function(snapshot) {
         if (snapshot.val() != null) {
           snapshot.forEach(function(studentsSnapshot) {
-            window.sessionStorage.setItem('userID', studentsSnapshot.key);
-            goToPage('studentMap');
+            if (studentsSnapshot.val().password == password)  {
+              window.sessionStorage.setItem('userID', studentsSnapshot.key);
+              goToPage('studentMap');
+            }
           });
         }
       });
 
-        // log in for employer
-        var employerRef = firebase.database().ref("Employers");
-        employerRef.orderByChild('username').equalTo(username).limitToFirst(1).once('value', function(snapshot) {
-          var userData = snapshot.val();
-          if (userData != null) {
-            snapshot.forEach(function(employerSnapshot) {
+      // log in for employer
+      var employerRef = firebase.database().ref("Employers");
+      employerRef.orderByChild('username').equalTo(username).limitToFirst(1).once('value', function(snapshot) {
+        var userData = snapshot.val();
+        if (userData != null) {
+          snapshot.forEach(function(employerSnapshot) {
+            if (employerSnapshot.val().password == password) {
               window.sessionStorage.setItem('userID', employerSnapshot.key);
               goToPage('employerSchedule', username);
-            });
-          }
-        });
+            }
+          });
+        }
       });
+    });
 
       $('body').on('click', '#log-out', function() {
         goToPage("login")
