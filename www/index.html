@@ -74,9 +74,15 @@
 
   <div id="googleMap" style="width:100%;height:400px;"></div>
 
-  <p>opportunities</p>
+  <div class="upcoming">
+    <p>Upcoming Opportunities</p>
+    <ul class="upcoming-opportunities"></ul>
+  </div>
 
-  <ul class="opportunities"><ul>
+  <div class="available">
+    <p>Available Opportunities</p>
+    <ul class="available-opportunities"><ul>
+  </div>
 </script>
 <script>
 
@@ -158,11 +164,28 @@
           });
         });
 
-        // load opportunities
+        // load upcoming opportunities
+        var events = firebase.database().ref('RegisteredEvents').
+          orderByChild('studentID').
+          equalTo(window.sessionStorage.getItem('userID')).
+          limitToFirst(1).
+          once('value', function(snapshot) {
+            if (snapshot.val() != null) {
+              snapshot.forEach(function(registeredEventSnapshot) {
+                var eventID = registeredEventSnapshot.val().eventID;
+                firebase.database().ref('Events/' + eventID).once('value', function(snapshot) {
+                  appendUpcomingEvent(snapshot.val());
+                });
+              });
+            }
+          });
+
+
+        // load available opportunities
         var events = firebase.database().ref("Events");
         events.once('value', function(snapshot) {
           snapshot.forEach(function(childSnapshot) {
-            appendEvent(childSnapshot.key, childSnapshot.val());
+            appendAvailableEvent(childSnapshot.key, childSnapshot.val());
           });
         });
       },
@@ -171,7 +194,16 @@
       }
     };
 
-    function appendEvent(eventID, eventData) {
+    function appendUpcomingEvent(eventData) {
+      var event = $('<li></li>').append('<p>'+eventData.employer+' - ' +eventData.name+ '</p>');
+      var eventInfo = $('<ol></ol>').
+      append('<li>'+eventData.date.join(', ')+'</li>').
+      append('<li>'+eventData.time+'</li>').
+      append('<li>'+eventData.zip+'</li>');
+      $('.upcoming-opportunities').append(event).append(eventInfo);
+    }
+
+    function appendAvailableEvent(eventID, eventData) {
       var registerEventButton = $('<input type="button" value="Sign Up" data-eventid="'+eventID+'" />');
       registerEventButton.on('click', function(event) {
         event.preventDefault();
@@ -184,7 +216,7 @@
         append('<li>'+eventData.time+'</li>').
         append('<li>'+eventData.zip+'</li>').
         append($('<li></li>').append(registerEventButton));
-      $('.opportunities').append(event).append(eventInfo);
+      $('.available-opportunities').append(event).append(eventInfo);
     }
 
     function goToPage(template, data) {
