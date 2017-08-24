@@ -168,7 +168,6 @@
         var events = firebase.database().ref('RegisteredEvents').
           orderByChild('studentID').
           equalTo(window.sessionStorage.getItem('userID')).
-          limitToFirst(1).
           once('value', function(snapshot) {
             if (snapshot.val() != null) {
               snapshot.forEach(function(registeredEventSnapshot) {
