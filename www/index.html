@@ -343,6 +343,7 @@
 
       $('body').on('click', '#log-out', function() {
         goToPage("login");
+        window.sessionStorage.clear();
       });
 
       $('body').on('click', '#add-button', function() {
