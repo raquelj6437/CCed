@@ -275,7 +275,7 @@
     // Navigation button click
     $('body').on('click', '.button', function(event) {
       var template = $(event.target).attr('data-href');
-      goToPage(template);
+      goToPage(template, { name: window.sessionStorage.getItem('username'), id: window.sessionStorage.getItem('userID') });
     });
 
     // Student signup click
@@ -318,6 +318,7 @@
           snapshot.forEach(function(studentsSnapshot) {
             if (studentsSnapshot.val().password == password)  {
               window.sessionStorage.setItem('userID', studentsSnapshot.key);
+              window.sessionStorage.setItem('username', username);
               goToPage('studentMap');
             }
           });
@@ -332,6 +333,7 @@
           snapshot.forEach(function(employerSnapshot) {
             if (employerSnapshot.val().password == password) {
               window.sessionStorage.setItem('userID', employerSnapshot.key);
+              window.sessionStorage.setItem('username', username);
               goToPage('employerSchedule', { name: username, id: employerSnapshot.key } );
             }
           });
@@ -340,7 +342,7 @@
     });
 
       $('body').on('click', '#log-out', function() {
-        goToPage("login")
+        goToPage("login");
       });
 
       $('body').on('click', '#add-button', function() {
