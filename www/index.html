@@ -122,7 +122,8 @@
     <input type="checkbox" class="daysOfWeek" name="daysOfWeek" value="Thursday"> Thursday<br>
     <input type="checkbox" class="daysOfWeek" name="daysOfWeek" value="Friday"> Friday<br>
     <input type="checkbox" class="daysOfWeek" name="daysOfWeek" value="Saturday"> Saturday<br>
-    <input type="hidden" name="employer" value="">
+    <input type="hidden" name="employerName" value="">
+    <input type="hidden" name="employerID" value="">
     <p id= "add-button">add</p>
   </form>
 </script>
@@ -131,6 +132,17 @@
   <p class= "button" id = "log-out">Log out</p>
   <p class= "button" data-href="employerSchedule">Schedule</p>
   <p class= "button" data-href="employerRoster">Roster</p>
+
+  <table id="student-roster">
+    <thead>
+      <tr>
+        <th>First name</td>
+        <th>Last name</td>
+        <th>E-mail</td>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </script>
 
 <script type="text/javascript" src="http://code.jquery.com/jquery-2.2.4.min.js"></script>
@@ -188,13 +200,43 @@
           });
         });
       },
-      employerSchedule: function(employerUsername) {
-        $('input[name="employer"]').val(employerUsername);
+      employerSchedule: function(employer) {
+        $('input[name="employerName"]').val(employer.name);
+        $('input[name="employerID"').val(employer.id)
+      },
+      employerRoster: function() {
+        var database = firebase.database();
+
+        database.ref('Events').once('value', function(eventSnapshot) {
+          eventSnapshot.forEach(function(event) {
+            if (event.val().employerID === window.sessionStorage.getItem('userID')) {
+              database.ref('RegisteredEvents').
+                orderByChild('eventID').
+                equalTo(event.key).
+                limitToFirst(1).
+                once('value', function(registeredEventSnapshot) {
+                  if (registeredEventSnapshot.val() != null) {
+                    registeredEventSnapshot.forEach(function(registeredEvent) {
+                      database.ref('Students/' + registeredEvent.val().studentID).once('value', function(studentSnapshot) {
+                        if (studentSnapshot.val() != null) {
+                          var student = $('<tr></tr>').
+                            append('<td>' +studentSnapshot.val().firstName+ '</td>').
+                            append('<td>' +studentSnapshot.val().lastName+ '</td>').
+                            append('<td>' +studentSnapshot.val().email+ '</td>');
+                          $('#student-roster tbody').append(student);
+                        }
+                      });
+                    });
+                  }
+                });
+            }
+          });
+        });
       }
     };
 
     function appendUpcomingEvent(eventData) {
-      var event = $('<li></li>').append('<p>'+eventData.employer+' - ' +eventData.name+ '</p>');
+      var event = $('<li></li>').append('<p>'+eventData.employerName+' - ' +eventData.name+ '</p>');
       var eventInfo = $('<ol></ol>').
       append('<li>'+eventData.date.join(', ')+'</li>').
       append('<li>'+eventData.time+'</li>').
@@ -209,7 +251,7 @@
         writeRegisteredStudentData($(this).data().eventid, window.sessionStorage.getItem('userID'));
       });
 
-      var event = $('<li></li>').append('<p>'+eventData.employer+' - ' +eventData.name+ '</p>');
+      var event = $('<li></li>').append('<p>'+eventData.employerName+' - ' +eventData.name+ '</p>');
       var eventInfo = $('<ol></ol>').
         append('<li>'+eventData.date.join(', ')+'</li>').
         append('<li>'+eventData.time+'</li>').
@@ -259,9 +301,9 @@
       var username= form.find('input[name=username]').val();
       var password= form.find('input[name=password]').val();
 
-      writeEmployerData(username, email, firstName, lastName, password);
+      var employerID = writeEmployerData(username, email, firstName, lastName, password);
 
-      goToPage('employerSchedule', username);
+      goToPage('employerSchedule', { id: employerID, name: username });
     });
 
     $('body').on('click', '#login-button', function() {
@@ -290,7 +332,7 @@
           snapshot.forEach(function(employerSnapshot) {
             if (employerSnapshot.val().password == password) {
               window.sessionStorage.setItem('userID', employerSnapshot.key);
-              goToPage('employerSchedule', username);
+              goToPage('employerSchedule', { name: username, id: employerSnapshot.key } );
             }
           });
         }
@@ -312,9 +354,10 @@
 
         var addTime = form.find('input[name=time]').val();
         var addZip = form.find('input[name=zipCode]').val();
-        var employer = form.find('input[name="employer"]').val();
+        var employerName = form.find('input[name="employerName"]').val();
+        var employerID = form.find('input[name="employerID"]').val();
 
-        writeEventData(addEvent, checkedValues, addTime, addZip, employer);
+        writeEventData(addEvent, checkedValues, addTime, addZip, employerName, employerID);
       });
 </script>
 
@@ -341,22 +384,25 @@
   }
 
   function writeEmployerData(username, email, firstName, lastName, password) {
-    firebase.database().ref('Employers').push().set({
+    var employerRef = firebase.database().ref('Employers').push();
+    employerRef.set({
       username: username,
       email: email,
       firstName: firstName,
       lastName: lastName,
       password: password
     });
+    return employerRef.key;
   }
 
-  function writeEventData(employerEvent, date, time, zip, employer) {
+  function writeEventData(employerEvent, date, time, zip, employerName, employerID) {
     firebase.database().ref('Events').push().set({
       name: employerEvent,
       date: date,
       time: time,
       zip: zip,
-      employer: employer
+      employer: employerName,
+      employerID: employerID
     });
   }
 
