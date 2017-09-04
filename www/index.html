@@ -15,85 +15,79 @@
 <body></body>
 
 <script id="login-tpl" type="text/x-jQuery-tmpl">
-  <h1 id="CCED">CCed</h1>
-  <p>Log In</p>
+<br>
+<br>
+<br>
+  <h1 id = "smd">CC&#39;<span id="pus">ed</span></h1>
   <form id = "login-form">
-    Username:<br>
-    <input type="text" name="username"><br/>
-    Password:<br>
-    <input type="password" name="password">
+    <input class = "loginInput inputUser" type="text" name="username" placeholder="Username"><br/>
+    <input class = "loginInput inputPass" type="password" name="password" placeholder="Password">
   </form>
-  <div id = "login-button"><p class="button" >Log In</p></div>
-  <p class="button" data-href="employerOrStudent">Sign Up</p>
+  <br>
+  <br>
+  <div id = "login-button"><button class="button login login-button">Login</button></div>
+  <button class="button login signup-button" data-href="employerOrStudent">Sign Up</button>
 </script>
 
 <script id="signup-employer-student-tpl" type="text/x-jQuery-tmpl">
   <form>
-    <p class= "button" data-href="signUpEmployer">Employer</p>
-    <p class= "button" data-href="signUpStudent">Student</p>
+    <button class= "button" data-href="signUpEmployer">Employer</button>
+    <button class= "button" data-href="signUpSchool">School</button>
   </form>
 </script>
 
 <script id="signup-employer-tpl" type="text/x-jQuery-tmpl">
     <form id="employer-signup-form">
-      First Name:<br>
-      <input type="text" name="firstname"><br>
-      Last Name:<br>
-      <input type="text" name="lastname"><br>
-      Email:<br>
-      <input type="text" name="email"><br>
-      Username:<br>
-      <input type="text" name="username"><br>
-      Password:<br>
-      <input type="text" name="password"><br>
-      <p class= "button" id="employer-signup">Sign Up</p>
+    <input class= "signUpInput" type="text" name="firstname" placeholder="First Name"><br>
+    <input class= "signUpInput" type="text" name="lastname" placeholder="Last Name"><br>
+    <input class= "signUpInput" type="text" name="email" placeholder="Email"><br>
+    <input class= "signUpInput" type="text" name="username" placeholder="Username"><br>
+    <input class= "signUpInput" type="text" name="password" placeholder="Password"><br>
+    <button class= "button signUpButton" id="employer-signup">Sign Up</button>
     </form>
 </script>
 
-<script id="signup-student-tpl" type="text/x-jQuery-tmpl">
-  <form id="student-signup-form">
-    First Name:<br>
-    <input type="text" name="firstname"><br>
-    Last Name:<br>
-    <input type="text" name="lastname"><br>
-    Email:<br>
-    <input type="text" name="email"><br>
-    Username:<br>
-    <input type="text" name="username"><br>
-    Password:<br>
-    <input type="text" name="password"><br>
-    <p class= "button" id="student-signup">Sign Up</p>
+<script id="signup-school-tpl" type="text/x-jQuery-tmpl">
+  <form id = "school-signup-form">
+    <input class= "signUpInput" type="text" name="nameOfSchool" placeholder="Name of School"><br>
+    <input class= "signUpInput" type="text" name="numberOfStudents" placeholder="Number of Students"><br>
+    <input class= "signUpInput" type="text" name="email" placeholder="Email"><br>
+    <input class= "signUpInput" type="text" name="phoneNumber" placeholder="Phone Number"><br>
+    <button class= "button signUpButton" id="school-signup">Continue</button>
+  </form>
+</script>
+    
+<script id="contact-page-tpl" type="text/x-jQuery-tmpl">
+  <form>
+    <p id= "contactPage"> We will get back to you within 24 hours. <p>
   </form>
 </script>
 
 <script id = "student-map-tpl" type="text/x-jQuery-tmpl">
-  <p class= "button" id = "log-out">Log out</p>
-  <p class= "button" data-href="studentMap">map</p>
-  <p class= "button" data-href="studentUpcoming">upcoming</p>
-  <p class= "button" data-href="studentTimesheet">timesheet</p>
+  <link href="https://fonts.googleapis.com/css?family=Encode+Sans+Semi+Condensed" rel="stylesheet">
+  <button class= "button employerButtons" id = "log-out">Log out</button>
+  <button class= "button employerButtons" data-href="studentMap">Map</button>
+  <button class= "button employerButtons" data-href="studentTimesheet">Timesheet</button>
 
   <div id="googleMap" style="width:100%;height:400px;"></div>
 
   <div class="upcoming">
-    <p>Upcoming Opportunities</p>
-    <ul class="upcoming-opportunities"></ul>
+    <p class = "titles">Upcoming Opportunities</p>
+    <ol class="upcoming-opportunities"></ol>
   </div>
 
   <div class="available">
-    <p>Available Opportunities</p>
-    <ul class="available-opportunities"><ul>
+    <p class = "titles">Available Opportunities</p>
+    <ol class="available-opportunities"><ol>
   </div>
 </script>
-<script>
 
-</script>
-
-<script id = "student-upcoming-tpl" type="text/x-jQuery-tmpl">
+<!-- <script id = "student-upcoming-tpl" type="text/x-jQuery-tmpl">
   <p class= "button" id = "log-out">Log out</p>
   <p class= "button" data-href="studentMap">map</p>
   <p class= "button" data-href="studentUpcoming">upcoming</p>
   <p class= "button" data-href="studentTimesheet">timesheet</p>
-</script>
+</script> -->
 
 <script id = "student-timesheet-tpl" type="text/x-jQuery-tmpl">
   <p class= "button" id = "log-out">Log out</p>
@@ -103,18 +97,24 @@
 </script>
 
 <script id = "employer-schedule-tpl" type="text/x-jQuery-tmpl">
-  <p class= "button" id = "log-out">Log out</p>
-  <p class= "button" data-href="employerSchedule">Schedule</p>
-  <p class= "button" data-href="employerRoster">Roster</p>
-
-  <form id = "employer-events">
-    Opportunity name:<br>
-    <input type="text" name="events"><br>
-    Time:<br>
-    <input type="text" name="time"><br>
-    Zip Code:<br>
-    <input type="text" name="zipCode"><br>
+  <br>
+  <br>
+  <button class= "button employerButtons" id = "log-out">Log out</button>
+  <button class= "button employerButtons" data-href="employerSchedule">Schedule</button>
+  <button class= "button employerButtons" data-href="employerRoster">Roster</button><br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <form id = "employer-events" style="clear:both">
+    <input class= "eventInput" type="text" name="events" placeholder="Opportunity Name"><br>
+    <input class= "eventInput" type="text" name="time" placeholder="Time"><br>
+    <input class= "eventInput" type="text" name="zipCode" placeholder="Address"><br>
     <br>
+    <br>
+    <p class = "middleTags">Choose Reccuring Days of Event</p>
+
     <input type="checkbox" class="daysOfWeek" name="daysOfWeek" value="Sunday"> Sunday<br>
     <input type="checkbox" class="daysOfWeek" name="daysOfWeek" value="Monday"> Monday<br>
     <input type="checkbox" class="daysOfWeek" name="daysOfWeek" value="Tuesday"> Tuesday<br>
@@ -122,9 +122,11 @@
     <input type="checkbox" class="daysOfWeek" name="daysOfWeek" value="Thursday"> Thursday<br>
     <input type="checkbox" class="daysOfWeek" name="daysOfWeek" value="Friday"> Friday<br>
     <input type="checkbox" class="daysOfWeek" name="daysOfWeek" value="Saturday"> Saturday<br>
-    <input type="hidden" name="employerName" value="">
-    <input type="hidden" name="employerID" value="">
-    <p id= "add-button">add</p>
+    <input type="hidden" name="employer" value="">
+    <br>
+    <button class= "addButton"id= "add-button">Add</button>
+
+    <p class="middleTags"> Created Events </p>
   </form>
 </script>
 
