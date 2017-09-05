@@ -26,81 +26,118 @@
   <br>
   <br>
   <div id = "login-button"><button class="button login login-button">Login</button></div>
+  <br>
   <button class="button login signup-button" data-href="employerOrStudent">Sign Up</button>
 </script>
 
 <script id="signup-employer-student-tpl" type="text/x-jQuery-tmpl">
   <form>
-    <button class= "button" data-href="signUpEmployer">Employer</button>
-    <button class= "button" data-href="signUpSchool">School</button>
+    <button class= "button employerButton" data-href="signUpEmployer">Employer</button>
+    <button class= "button schoolButton" data-href="signUpSchool">School</button>
   </form>
 </script>
 
 <script id="signup-employer-tpl" type="text/x-jQuery-tmpl">
     <form id="employer-signup-form">
+    <h1 id = "smd">CC&#39;<span id="pus">ed</span></h1>
     <input class= "signUpInput" type="text" name="firstname" placeholder="First Name"><br>
     <input class= "signUpInput" type="text" name="lastname" placeholder="Last Name"><br>
     <input class= "signUpInput" type="text" name="email" placeholder="Email"><br>
     <input class= "signUpInput" type="text" name="username" placeholder="Username"><br>
     <input class= "signUpInput" type="text" name="password" placeholder="Password"><br>
+    <br>
+    <br>
+    <br>
     <button class= "button signUpButton" id="employer-signup">Sign Up</button>
     </form>
 </script>
 
 <script id="signup-school-tpl" type="text/x-jQuery-tmpl">
   <form id = "school-signup-form">
+    <h1 id = "smd">CC&#39;<span id="pus">ed</span></h1>
     <input class= "signUpInput" type="text" name="nameOfSchool" placeholder="Name of School"><br>
     <input class= "signUpInput" type="text" name="numberOfStudents" placeholder="Number of Students"><br>
     <input class= "signUpInput" type="text" name="email" placeholder="Email"><br>
     <input class= "signUpInput" type="text" name="phoneNumber" placeholder="Phone Number"><br>
-    <button class= "button signUpButton" id="school-signup">Continue</button>
+    <br>
+    <br>
+    <br>
+    <br>
+    <button class= "button signUpButton" id="school-signup" data-href="contactPage">Continue</button>
   </form>
 </script>
-    
+
 <script id="contact-page-tpl" type="text/x-jQuery-tmpl">
   <form>
+    <br>
+    <br>
+    <br>
+    <h1 id = "smd">CC&#39;<span id="pus">ed</span></h1>
     <p id= "contactPage"> We will get back to you within 24 hours. <p>
   </form>
 </script>
 
 <script id = "student-map-tpl" type="text/x-jQuery-tmpl">
+  <br style="background-color:white;">
   <link href="https://fonts.googleapis.com/css?family=Encode+Sans+Semi+Condensed" rel="stylesheet">
-  <button class= "button employerButtons" id = "log-out">Log out</button>
-  <button class= "button employerButtons" data-href="studentMap">Map</button>
-  <button class= "button employerButtons" data-href="studentTimesheet">Timesheet</button>
 
-  <div id="googleMap" style="width:100%;height:400px;"></div>
+  <div id="googleMap" style="width:100%;height:91%;"></div>
 
-  <div class="upcoming">
-    <p class = "titles">Upcoming Opportunities</p>
-    <ol class="upcoming-opportunities"></ol>
+  <button class= "button studentButtons" id = "log-out">Log out</button>
+  <a href="#events-link"><button class= "button studentButtons">Events</button></a>
+  <button class= "button studentButtons" data-href="studentTimesheet">Timesheet</button>
+
+  <br>
+  <br>
+  <br>
+  <div id="events-link">
+    <br>
+    <div class="upcoming">
+      <p class = "titles">Upcoming Opportunities</p>
+      <ol class="upcoming-opportunities"></ol>
+    </div>
+
+    <div class="available">
+      <p class = "titles">Available Opportunities</p>
+      <ol class="available-opportunities"><ol>
+    </div>
   </div>
 
-  <div class="available">
-    <p class = "titles">Available Opportunities</p>
-    <ol class="available-opportunities"><ol>
-  </div>
+  <button onclick="topFunction()" id="myBtn" title="Go to map">Map</button>
 </script>
 
-<!-- <script id = "student-upcoming-tpl" type="text/x-jQuery-tmpl">
-  <p class= "button" id = "log-out">Log out</p>
-  <p class= "button" data-href="studentMap">map</p>
-  <p class= "button" data-href="studentUpcoming">upcoming</p>
-  <p class= "button" data-href="studentTimesheet">timesheet</p>
-</script> -->
+<script>
+  // When the user scrolls down 20px from the top of the document, show the button
+  window.onscroll = function() {scrollFunction()};
+
+  function scrollFunction() {
+      if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+          document.getElementById("myBtn").style.display = "block";
+      } else {
+          document.getElementById("myBtn").style.display = "none";
+      }
+  }
+
+  // When the user clicks on the button, scroll to the top of the document
+  function topFunction() {
+      document.body.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+  }
+</script>
+
 
 <script id = "student-timesheet-tpl" type="text/x-jQuery-tmpl">
-  <p class= "button" id = "log-out">Log out</p>
-  <p class= "button" data-href="studentMap">map</p>
-  <p class= "button" data-href="studentUpcoming">upcoming</p>
-  <p class= "button" data-href="studentTimesheet">timesheet</p>
+  <br style="background-color:white;">
+  <br>
+  <button class= "button studentButtons" id = "log-out">Log out</button>
+  <button class= "button studentButtons" data-href="studentMap">Map</button>
+  <button class= "button studentButtons" data-href="studentTimesheet">Timesheet</button>
 </script>
 
 <script id = "employer-schedule-tpl" type="text/x-jQuery-tmpl">
-  <br>
+  <br style="background-color:white;">
   <br>
   <button class= "button employerButtons" id = "log-out">Log out</button>
-  <button class= "button employerButtons" data-href="employerSchedule">Schedule</button>
   <button class= "button employerButtons" data-href="employerRoster">Roster</button><br>
   <br>
   <br>
@@ -131,9 +168,10 @@
 </script>
 
 <script id = "employer-roster-tpl" type="text/x-jQuery-tmpl">
-  <p class= "button" id = "log-out">Log out</p>
-  <p class= "button" data-href="employerSchedule">Schedule</p>
-  <p class= "button" data-href="employerRoster">Roster</p>
+<br>
+<br>
+<button class= "button employerButtons" id = "log-out">Log out</button>
+<button class= "button employerButtons" data-href="employerSchedule">Schedule</button>
 
   <table id="student-roster">
     <thead>
@@ -141,6 +179,7 @@
         <th>First name</td>
         <th>Last name</td>
         <th>E-mail</td>
+        <th>Hours</td>
       </tr>
     </thead>
     <tbody></tbody>
@@ -160,7 +199,8 @@
       login: $('#login-tpl').html(),
       employerOrStudent: $('#signup-employer-student-tpl').html(),
       signUpEmployer: $('#signup-employer-tpl').html(),
-      signUpStudent: $('#signup-student-tpl').html(),
+      signUpSchool: $('#signup-school-tpl').html(),
+      contactPage: $('#contact-page-tpl').html(),
       studentMap: $('#student-map-tpl').html(),
       studentUpcoming: $('#student-upcoming-tpl').html(),
       studentTimesheet: $('#student-timesheet-tpl').html(),
@@ -174,7 +214,11 @@
 
           var map = new google.maps.Map(document.getElementById("googleMap"), {
             center: new google.maps.LatLng(position.coords.latitude,position.coords.longitude),
-            zoom: 5,
+            zoom: 17,
+            mapTypeControl: false,
+            scaleControl: false,
+            streetViewControl: false,
+            zoomControl: true
           });
         });
 
@@ -221,10 +265,13 @@
                     registeredEventSnapshot.forEach(function(registeredEvent) {
                       database.ref('Students/' + registeredEvent.val().studentID).once('value', function(studentSnapshot) {
                         if (studentSnapshot.val() != null) {
+                          //make ordered list for roster
                           var student = $('<tr></tr>').
                             append('<td>' +studentSnapshot.val().firstName+ '</td>').
                             append('<td>' +studentSnapshot.val().lastName+ '</td>').
                             append('<td>' +studentSnapshot.val().email+ '</td>');
+                            // add student hours
+                            // add button for employer to sign off on student
                           $('#student-roster tbody').append(student);
                         }
                       });
@@ -239,7 +286,7 @@
 
     function appendUpcomingEvent(eventData) {
       var event = $('<li></li>').append('<p>'+eventData.employerName+' - ' +eventData.name+ '</p>');
-      var eventInfo = $('<ol></ol>').
+      var eventInfo = $('<ul></ul>').
       append('<li>'+eventData.date.join(', ')+'</li>').
       append('<li>'+eventData.time+'</li>').
       append('<li>'+eventData.zip+'</li>');
@@ -254,11 +301,11 @@
       });
 
       var event = $('<li></li>').append('<p>'+eventData.employerName+' - ' +eventData.name+ '</p>');
-      var eventInfo = $('<ol></ol>').
+      var eventInfo = $('<ul></ul>').
         append('<li>'+eventData.date.join(', ')+'</li>').
         append('<li>'+eventData.time+'</li>').
         append('<li>'+eventData.zip+'</li>').
-        append($('<li></li>').append(registerEventButton));
+        append($('<p></p>').append(registerEventButton));
       $('.available-opportunities').append(event).append(eventInfo);
     }
 
@@ -281,18 +328,17 @@
     });
 
     // Student signup click
-    $('body').on('click', '#student-signup', function() {
-      var form = $('#student-signup-form');
-      var firstName= form.find('input[name=firstname]').val();
-      var lastName= form.find('input[name=lastname]').val();
+    $('body').on('click', '#school-signup', function() {
+      var form = $('#school-signup-form');
+      var nameOfSchool= form.find('input[name=nameOfSchool]').val();
+      var numberOfStudents= form.find('input[name=numberOfStudents]').val();
       var email= form.find('input[name=email]').val();
-      var username= form.find('input[name=username]').val();
-      var password= form.find('input[name=password]').val();
+      var phoneNumber= form.find('input[name=phoneNumber]').val();
 
       // Create student in firebase
-      writeStudentData(username, email, firstName, lastName, password);
+      writeSchoolData(nameOfSchool, numberOfStudents, email, phoneNumber);
 
-      goToPage('studentMap');
+      goToPage('contactPage');
     });
 
     $('body').on('click', '#employer-signup', function() {
@@ -378,13 +424,12 @@
   };
   firebase.initializeApp(config);
 
-  function writeStudentData(username, email, firstName, lastName, password) {
-    firebase.database().ref('Students').push().set({
-      username: username,
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
-      password: password
+  function writeSchoolData(nameOfSchool, numberOfStudents, email, phoneNumber) {
+    firebase.database().ref('Schools').push().set({
+      nameOfSchool:nameOfSchool,
+      numberOfStudents:numberOfStudents,
+      email:email,
+      phoneNumber:phoneNumber
     });
   }
 
