@@ -20,6 +20,22 @@ var app = {
     // Application Constructor
     initialize: function() {
         this.bindEvents();
+
+        window.locationPromise = new Promise(function(resolve, reject) {
+            if (window.sessionStorage.position) {
+                return resolve(JSON.parse(window.sessionStorage.position));
+            }
+
+            window.navigator.geolocation.getCurrentPosition(function(position) {
+                window.sessionStorage.setItem('position', JSON.stringify({
+                    coords: {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    }
+                }));
+                resolve(position);
+            });
+        });        
     },
     // Bind Event Listeners
     //
