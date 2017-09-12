@@ -18,7 +18,8 @@
 <br>
 <br>
 <br>
-  <h1 id = "smd">CC&#39;<span id="pus">ed</span></h1>
+  <!--<h1 id = "smd">CC&#39;<span id="pus">ed</span></h1>-->
+  <img src="logo.png" alt="logo" width=400>
   <form id = "login-form">
     <input class = "loginInput inputUser" type="text" name="username" placeholder="Username"><br/>
     <input class = "loginInput inputPass" type="password" name="password" placeholder="Password">
@@ -39,7 +40,7 @@
 
 <script id="signup-employer-tpl" type="text/x-jQuery-tmpl">
     <form id="employer-signup-form">
-    <h1 id = "smd">CC&#39;<span id="pus">ed</span></h1>
+    <img src="logo.png" alt="logo" width=400>
     <input class= "signUpInput" type="text" name="firstname" placeholder="First Name"><br>
     <input class= "signUpInput" type="text" name="lastname" placeholder="Last Name"><br>
     <input class= "signUpInput" type="text" name="email" placeholder="Email"><br>
@@ -54,7 +55,7 @@
 
 <script id="signup-school-tpl" type="text/x-jQuery-tmpl">
   <form id = "school-signup-form">
-    <h1 id = "smd">CC&#39;<span id="pus">ed</span></h1>
+    <img src="logo.png" alt="logo" width=400>
     <input class= "signUpInput" type="text" name="nameOfSchool" placeholder="Name of School"><br>
     <input class= "signUpInput" type="text" name="numberOfStudents" placeholder="Number of Students"><br>
     <input class= "signUpInput" type="text" name="email" placeholder="Email"><br>
@@ -72,7 +73,7 @@
     <br>
     <br>
     <br>
-    <h1 id = "smd">CC&#39;<span id="pus">ed</span></h1>
+    <img src="logo.png" alt="logo" width=400>
     <p id= "contactPage"> We will get back to you within 24 hours. <p>
   </form>
 </script>
@@ -99,7 +100,7 @@
 
     <div class="available">
       <p class = "titles">Available Opportunities</p>
-      <ol class="available-opportunities"></ol>
+      <ol class="available-opportunities"><ol>
     </div>
   </div>
 
@@ -132,6 +133,13 @@
   <button class= "button studentButtons" id = "log-out">Log out</button>
   <button class= "button studentButtons" data-href="studentMap">Map</button>
   <button class= "button studentButtons" data-href="studentTimesheet">Timesheet</button>
+
+  <table class= "timesheet">
+<tr> <td>Date</td> <td>Time In</td> <td>Time Out</td> <td>Employee Signature</td></tr>
+<tr><td></td><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td></tr>
+  </table>
 </script>
 
 <script id = "employer-schedule-tpl" type="text/x-jQuery-tmpl">
@@ -150,7 +158,7 @@
     <input class= "eventInput" type="text" name="zipCode" placeholder="Address"><br>
     <br>
     <br>
-    <p class = "middleTags">Choose Reccuring Days of Event</p>
+    <p class = "middleTags employerText">Choose Reccuring Days of Event</p>
 
     <input type="checkbox" class="daysOfWeek" name="daysOfWeek" value="Sunday"> Sunday<br>
     <input type="checkbox" class="daysOfWeek" name="daysOfWeek" value="Monday"> Monday<br>
@@ -163,7 +171,7 @@
     <br>
     <button class= "addButton"id= "add-button">Add</button>
 
-    <p class="middleTags"> Created Events </p>
+    <!--<p class="middleTags employerText"> Created Events </p>-->
   </form>
 </script>
 
@@ -186,19 +194,232 @@
   </table>
 </script>
 
+<script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDjNWiW2AT7db_A64_JZIOG0_z_6gjmSfc"></script>
 <script type="text/javascript" src="https://www.gstatic.com/firebasejs/4.2.0/firebase.js"></script>
 <script type="text/javascript" src="cordova.js"></script>
 <script type="text/javascript" src="js/index.js"></script>
-    
-<script
-  src="http://code.jquery.com/jquery-3.2.1.js"
-  integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
-  crossorigin="anonymous">
+<script type="text/javascript">
+    app.initialize();
+
+    // Set our template variables from our script tags
+    var templates = {
+      login: $('#login-tpl').html(),
+      employerOrStudent: $('#signup-employer-student-tpl').html(),
+      signUpEmployer: $('#signup-employer-tpl').html(),
+      signUpSchool: $('#signup-school-tpl').html(),
+      contactPage: $('#contact-page-tpl').html(),
+      studentMap: $('#student-map-tpl').html(),
+      studentUpcoming: $('#student-upcoming-tpl').html(),
+      studentTimesheet: $('#student-timesheet-tpl').html(),
+      employerSchedule: $('#employer-schedule-tpl').html(),
+      employerRoster: $('#employer-roster-tpl').html()
+    };
+
+    var pageLoadFunctions = {
+      studentMap: function() {
+        window.navigator.geolocation.getCurrentPosition(function(position) {
+
+          var map = new google.maps.Map(document.getElementById("googleMap"), {
+            center: new google.maps.LatLng(position.coords.latitude,position.coords.longitude),
+            zoom: 17,
+            mapTypeControl: false,
+            scaleControl: false,
+            streetViewControl: false,
+            zoomControl: true
+          });
+        });
+
+        // load upcoming opportunities
+        var events = firebase.database().ref('RegisteredEvents').
+          orderByChild('studentID').
+          equalTo(window.sessionStorage.getItem('userID')).
+          once('value', function(snapshot) {
+            if (snapshot.val() != null) {
+              snapshot.forEach(function(registeredEventSnapshot) {
+                var eventID = registeredEventSnapshot.val().eventID;
+                firebase.database().ref('Events/' + eventID).once('value', function(snapshot) {
+                  appendUpcomingEvent(snapshot.val());
+                });
+              });
+            }
+          });
+
+
+        // load available opportunities
+        var events = firebase.database().ref("Events");
+        events.once('value', function(snapshot) {
+          snapshot.forEach(function(childSnapshot) {
+            appendAvailableEvent(childSnapshot.key, childSnapshot.val());
+          });
+        });
+      },
+      employerSchedule: function(employer) {
+        $('input[name="employerName"]').val(employer.name);
+        $('input[name="employerID"').val(employer.id)
+      },
+      employerRoster: function() {
+        var database = firebase.database();
+
+        database.ref('Events').once('value', function(eventSnapshot) {
+          eventSnapshot.forEach(function(event) {
+            if (event.val().employerID === window.sessionStorage.getItem('userID')) {
+              database.ref('RegisteredEvents').
+                orderByChild('eventID').
+                equalTo(event.key).
+                limitToFirst(1).
+                once('value', function(registeredEventSnapshot) {
+                  if (registeredEventSnapshot.val() != null) {
+                    registeredEventSnapshot.forEach(function(registeredEvent) {
+                      database.ref('Students/' + registeredEvent.val().studentID).once('value', function(studentSnapshot) {
+                        if (studentSnapshot.val() != null) {
+                          //make ordered list for roster
+                          var student = $('<tr></tr>').
+                            append('<td>' +studentSnapshot.val().firstName+ '</td>').
+                            append('<td>' +studentSnapshot.val().lastName+ '</td>').
+                            append('<td>' +studentSnapshot.val().email+ '</td>');
+                            // add student hours
+                            // add button for employer to sign off on student
+                          $('#student-roster tbody').append(student);
+                        }
+                      });
+                    });
+                  }
+                });
+            }
+          });
+        });
+      }
+    };
+
+    function appendUpcomingEvent(eventData) {
+      var event = $('<li></li>').append('<p>'+eventData.employerName+' - ' +eventData.name+ '</p>');
+      var eventInfo = $('<ul></ul>').
+      append('<li>'+eventData.date.join(', ')+'</li>').
+      append('<li>'+eventData.time+'</li>').
+      append('<li>'+eventData.zip+'</li>');
+      $('.upcoming-opportunities').append(event).append(eventInfo);
+    }
+
+    function appendAvailableEvent(eventID, eventData) {
+      var registerEventButton = $('<input type="button" value="Sign Up" data-eventid="'+eventID+'" />');
+      registerEventButton.on('click', function(event) {
+        event.preventDefault();
+        writeRegisteredStudentData($(this).data().eventid, window.sessionStorage.getItem('userID'));
+      });
+
+      var event = $('<li></li>').append('<p>'+eventData.employerName+' - ' +eventData.name+ '</p>');
+      var eventInfo = $('<ul></ul>').
+        append('<li>'+eventData.date.join(', ')+'</li>').
+        append('<li>'+eventData.time+'</li>').
+        append('<li>'+eventData.zip+'</li>').
+        append($('<p></p>').append(registerEventButton));
+      $('.available-opportunities').append(event).append(eventInfo);
+    }
+
+    function goToPage(template, data) {
+      $('body').html(templates[template]);
+
+      // Check if we have anything to do on page load
+      if (pageLoadFunctions[template]) {
+        pageLoadFunctions[template](data);
+      }
+    }
+
+    // Render homepage
+    goToPage('login');
+
+    // Navigation button click
+    $('body').on('click', '.button', function(event) {
+      var template = $(event.target).attr('data-href');
+      goToPage(template, { name: window.sessionStorage.getItem('username'), id: window.sessionStorage.getItem('userID') });
+    });
+
+    // School signup click
+    $('body').on('click', '#school-signup', function() {
+      var form = $('#school-signup-form');
+      var nameOfSchool= form.find('input[name=nameOfSchool]').val();
+      var numberOfStudents= form.find('input[name=numberOfStudents]').val();
+      var email= form.find('input[name=email]').val();
+      var phoneNumber= form.find('input[name=phoneNumber]').val();
+
+      // Create school in firebase
+      writeSchoolData(nameOfSchool, numberOfStudents, email, phoneNumber);
+
+      goToPage('contactPage');
+    });
+
+    $('body').on('click', '#employer-signup', function() {
+      var form = $('#employer-signup-form');
+      var firstName= form.find('input[name=firstname]').val();
+      var lastName= form.find('input[name=lastname]').val();
+      var email= form.find('input[name=email]').val();
+      var username= form.find('input[name=username]').val();
+      var password= form.find('input[name=password]').val();
+
+      var employerID = writeEmployerData(username, email, firstName, lastName, password);
+
+      goToPage('employerSchedule', { id: employerID, name: username });
+    });
+
+    $('body').on('click', '#login-button', function() {
+      var form = $('#login-form');
+      var username= form.find('input[name=username]').val();
+      var password= form.find('input[name=password]').val();
+
+      // log in for students
+      var studentsRef = firebase.database().ref("Students");
+      studentsRef.orderByChild('username').equalTo(username).limitToFirst(1).once('value', function(snapshot) {
+        if (snapshot.val() != null) {
+          snapshot.forEach(function(studentsSnapshot) {
+            if (studentsSnapshot.val().password == password)  {
+              window.sessionStorage.setItem('userID', studentsSnapshot.key);
+              window.sessionStorage.setItem('username', username);
+              goToPage('studentMap');
+            }
+          });
+        }
+      });
+
+      // log in for employer
+      var employerRef = firebase.database().ref("Employers");
+      employerRef.orderByChild('username').equalTo(username).limitToFirst(1).once('value', function(snapshot) {
+        var userData = snapshot.val();
+        if (userData != null) {
+          snapshot.forEach(function(employerSnapshot) {
+            if (employerSnapshot.val().password == password) {
+              window.sessionStorage.setItem('userID', employerSnapshot.key);
+              window.sessionStorage.setItem('username', username);
+              goToPage('employerSchedule', { name: username, id: employerSnapshot.key } );
+            }
+          });
+        }
+      });
+    });
+
+      $('body').on('click', '#log-out', function() {
+        goToPage("login");
+        window.sessionStorage.clear();
+      });
+
+      $('body').on('click', '#add-button', function() {
+        var form = $('#employer-events');
+        var addEvent= form.find('input[name=events]').val();
+
+        var checkedValues = $('.daysOfWeek:checked').map(function(index, value) {
+          return $(value).val();
+        }).get();
+
+
+        var addTime = form.find('input[name=time]').val();
+        var addZip = form.find('input[name=zipCode]').val();
+        var employerName = form.find('input[name="employerName"]').val();
+        var employerID = form.find('input[name="employerID"]').val();
+
+        writeEventData(addEvent, checkedValues, addTime, addZip, employerName, employerID);
+      });
 </script>
-    
-<!-- <script type="text/javascript" src="js/jquery.js"></script> -->
-    
+
 <script>
   // Initialize Firebase
   var config = {
@@ -249,249 +470,6 @@
       studentID: studentID
     });
   }
-</script>
-<script type="text/javascript">
-    app.initialize();
-
-    // Set our template variables from our script tags
-    var templates = {
-      login: $('#login-tpl').html(),
-      employerOrStudent: $('#signup-employer-student-tpl').html(),
-      signUpEmployer: $('#signup-employer-tpl').html(),
-      signUpSchool: $('#signup-school-tpl').html(),
-      contactPage: $('#contact-page-tpl').html(),
-      studentMap: $('#student-map-tpl').html(),
-      studentUpcoming: $('#student-upcoming-tpl').html(),
-      studentTimesheet: $('#student-timesheet-tpl').html(),
-      employerSchedule: $('#employer-schedule-tpl').html(),
-      employerRoster: $('#employer-roster-tpl').html()
-    };
-
-    var pageLoadFunctions = {
-      studentMap: function() {
-        
-        // Fetch our position as a promise
-        window.locationPromise
-          .then(function(position) {
-            var map = new google.maps.Map(document.getElementById("googleMap"), {
-              center: new google.maps.LatLng(position.coords.latitude,position.coords.longitude),
-              zoom: 17,
-              mapTypeControl: false,
-              scaleControl: false,
-              streetViewControl: false,
-              zoomControl: true
-            });
-        });
-
-        // load upcoming opportunities
-        firebase.database().ref('RegisteredEvents')
-          .orderByChild('studentID')
-          .equalTo(window.sessionStorage.getItem('userID'))
-          .once('value', function(snapshot) {
-            var results = snapshot.val() || {};
-            var registeredEventIDs = [];
-            for (var eventKey in results) {
-              registeredEventIDs.push(results[eventKey].eventID);
-              firebase.database().ref('Events/' + results[eventKey].eventID).once('value', function(snapshot) {
-                appendUpcomingEvent(snapshot.val());
-              });
-            }
-
-            // Load available opportunities
-            firebase.database().ref('Events').once('value', function(snapshot) {
-              snapshot.forEach(function(childSnapshot) {
-                // Only append available event if not already registered for
-                if (registeredEventIDs.indexOf(childSnapshot.key) === -1) {
-                  appendAvailableEvent(childSnapshot.key, childSnapshot.val());
-                }
-              });
-            });
-          });  
-      },
-      employerSchedule: function(employer) {
-        $('input[name="employerName"]').val(employer.name);
-        $('input[name="employerID"').val(employer.id)
-      },
-      employerRoster: function() {
-        var database = firebase.database();
-
-        database.ref('Events').once('value', function(eventSnapshot) {
-          eventSnapshot.forEach(function(event) {
-            if (event.val().employerID === window.sessionStorage.getItem('userID')) {
-              database.ref('RegisteredEvents').
-                orderByChild('eventID').
-                equalTo(event.key).
-                limitToFirst(1).
-                once('value', function(registeredEventSnapshot) {
-                  if (registeredEventSnapshot.val() != null) {
-                    registeredEventSnapshot.forEach(function(registeredEvent) {
-                      database.ref('Students/' + registeredEvent.val().studentID).once('value', function(studentSnapshot) {
-                        if (studentSnapshot.val() != null) {
-                          //make ordered list for roster
-                          var student = $('<tr></tr>').
-                            append('<td>' +studentSnapshot.val().firstName+ '</td>').
-                            append('<td>' +studentSnapshot.val().lastName+ '</td>').
-                            append('<td>' +studentSnapshot.val().email+ '</td>');
-                            // add student hours
-                            // add button for employer to sign off on student
-                          $('#student-roster tbody').append(student);
-                        }
-                      });
-                    });
-                  }
-                });
-            }
-          });
-        });
-      }
-    };
-
-    function appendUpcomingEvent(eventData) {
-      var event = $('<li></li>').append('<p>'+eventData.employerName+' - ' +eventData.name+ '</p>');
-      var eventInfo = $('<ul></ul>');
-      eventInfo
-        .append('<li>'+eventData.date.join(', ')+'</li>')
-        .append('<li>'+eventData.time+'</li>')
-        .append('<li>'+eventData.zip+'</li>');
-      event.append(eventInfo);
-      $('.upcoming-opportunities').append(event);
-    }
-
-    function appendAvailableEvent(eventID, eventData) {
-      var registerEventButton = $('<input type="button" value="Sign Up" data-eventid="'+eventID+'" />');
-      registerEventButton.on('click', function(event) {
-        event.preventDefault();
-        // remove from DOM
-        $('li#' + eventID).remove();
-        // add to upcoming
-        appendUpcomingEvent(eventData);
-        // add to database
-        writeRegisteredStudentData($(this).data().eventid, window.sessionStorage.getItem('userID'));
-      });
-
-      var event = $('<li id="' + eventID  + '"></li>').append('<p>'+eventData.employerName+' - ' +eventData.name+ '</p>');
-      var eventInfo = $('<ul></ul>');
-      eventInfo
-        .append('<li>'+eventData.date.join(', ')+'</li>')
-        .append('<li>'+eventData.time+'</li>')
-        .append('<li>'+eventData.zip+'</li>')
-        .append($('<p></p>').append(registerEventButton));
-      event.append(eventInfo);
-      $('.available-opportunities').append(event);
-    }
-
-    function goToPage(template, data) {
-      $('body').html(templates[template]);
-
-      // Check if we have anything to do on page load
-      if (pageLoadFunctions[template]) {
-        pageLoadFunctions[template](data);
-      }
-    }
-
-    // Check if user is already logged in
-    if (window.sessionStorage.userID) {
-      if (window.sessionStorage.userType === 'student')  {
-        goToPage('studentMap');
-      } else if (window.sessionStorage.userType === 'employer') {
-        goToPage('employerSchedule', { name: window.sessionStorage.username, id: window.sessionStorage.userID } );
-      }
-    } else {
-      // Render homepage
-      goToPage('login');
-    }
-
-    // Navigation button click
-    $('body').on('click', '.button', function(event) {
-      var template = $(event.target).attr('data-href');
-      goToPage(template, { name: window.sessionStorage.getItem('username'), id: window.sessionStorage.getItem('userID') });
-    });
-
-    // Student signup click
-    $('body').on('click', '#school-signup', function() {
-      var form = $('#school-signup-form');
-      var nameOfSchool= form.find('input[name=nameOfSchool]').val();
-      var numberOfStudents= form.find('input[name=numberOfStudents]').val();
-      var email= form.find('input[name=email]').val();
-      var phoneNumber= form.find('input[name=phoneNumber]').val();
-
-      // Create student in firebase
-      writeSchoolData(nameOfSchool, numberOfStudents, email, phoneNumber);
-
-      goToPage('contactPage');
-    });
-
-    $('body').on('click', '#employer-signup', function() {
-      var form = $('#employer-signup-form');
-      var firstName= form.find('input[name=firstname]').val();
-      var lastName= form.find('input[name=lastname]').val();
-      var email= form.find('input[name=email]').val();
-      var username= form.find('input[name=username]').val();
-      var password= form.find('input[name=password]').val();
-
-      var employerID = writeEmployerData(username, email, firstName, lastName, password);
-
-      goToPage('employerSchedule', { id: employerID, name: username });
-    });
-
-    $('body').on('click', '#login-button', function() {
-      var form = $('#login-form');
-      var username = form.find('input[name=username]').val();
-      var password = form.find('input[name=password]').val();
-
-      // log in for students
-      var studentsRef = firebase.database().ref("Students");
-      studentsRef.orderByChild('username').equalTo(username).limitToFirst(1).once('value', function(snapshot) {
-        if (snapshot.val() != null) {
-          snapshot.forEach(function(studentsSnapshot) {
-            if (studentsSnapshot.val().password == password)  {
-              window.sessionStorage.setItem('userID', studentsSnapshot.key);
-              window.sessionStorage.setItem('username', username);
-              window.sessionStorage.setItem('userType', 'student');
-              goToPage('studentMap');
-            }
-          });
-        }
-      });
-
-      // log in for employer
-      var employerRef = firebase.database().ref("Employers");
-      employerRef.orderByChild('username').equalTo(username).limitToFirst(1).once('value', function(snapshot) {
-        var userData = snapshot.val();
-        if (userData != null) {
-          snapshot.forEach(function(employerSnapshot) {
-            if (employerSnapshot.val().password == password) {
-              window.sessionStorage.setItem('userID', employerSnapshot.key);
-              window.sessionStorage.setItem('username', username);
-              window.sessionStorage.setItem('userType', 'employer');
-              goToPage('employerSchedule', { name: username, id: employerSnapshot.key } );
-            }
-          });
-        }
-      });
-    });
-
-      $('body').on('click', '#log-out', function() {
-        goToPage("login");
-        window.sessionStorage.clear();
-      });
-
-      $('body').on('click', '#add-button', function() {
-        var form = $('#employer-events');
-        var addEvent= form.find('input[name=events]').val();
-
-        var checkedValues = $('.daysOfWeek:checked').map(function(index, value) {
-          return $(value).val();
-        }).get();
-
-
-        var addTime = form.find('input[name=time]').val();
-        var addZip = form.find('input[name=zipCode]').val();
-        var employerName = form.find('input[name="employerName"]').val();
-        var employerID = form.find('input[name="employerID"]').val();
-
-        writeEventData(addEvent, checkedValues, addTime, addZip, employerName, employerID);
-      });
 </script>
 
 </html>
