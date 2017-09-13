@@ -6,23 +6,12 @@ body {
   -ms-user-select: none;
 }
 
-.noScroll{
-  overflow: hidden;
-}
-
-.scroll{
-  overflow: scroll;
-}
-
 body, html {
   height: 100%;
 }
 
 div #content {
   height: 100%;
-}
-
-img {
 }
 
 .studentButtons{
@@ -33,10 +22,11 @@ img {
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-size: 3vw;
+  font-size: 4.9vw;
   width: 33.3%;
   cursor: pointer;
   float: left;
+  font-weight: bold;
   font-family: 'Open Sans Condensed', sans-serif;
 }
 
@@ -48,10 +38,11 @@ img {
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-size: 3vw;
+  font-size: 5vw;
   width: 50%;
   cursor: pointer;
   float: left;
+  font-weight: bold;
   font-family: 'Open Sans Condensed', sans-serif;
 }
 
@@ -106,7 +97,6 @@ img {
   font-family: 'Open Sans Condensed', sans-serif;
 }
 
-
 .loginInput{
   height:10vw;
   width:80vw;
@@ -118,8 +108,6 @@ img {
   font-family: 'Open Sans Condensed', sans-serif;
   letter-spacing: 5px;
 }
-
-
 
 .employerButton{
   font-size: 15vw;
@@ -143,7 +131,6 @@ img {
   color: white;
   font-family: 'Open Sans Condensed', sans-serif;
 }
-
 
 .signUpInput{
   font-family: monospace;
@@ -248,7 +235,7 @@ img {
 
 li{
   font-size: 20px;
-  font-size: 4vw;
+  font-size: 7vw;
   font-family: 'Open Sans Condensed', sans-serif;
 }
 
@@ -285,7 +272,6 @@ input[type=button]{
 #myBtn:hover {
   background-color: #555;
 }
-
 
 table, th, td{
   font-size: 13px;
