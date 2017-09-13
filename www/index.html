@@ -6,8 +6,9 @@
     <meta name="msapplication-tap-highlight" content="no" />
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
     <!-- This is a wide open CSP declaration. To lock this down for production, see below. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
+    <!--<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />-->
 
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Encode+Sans+Semi+Condensed" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="css/index.css" />
     <title>CC'ed</title>
 </head>
@@ -15,10 +16,10 @@
 <body></body>
 
 <script id="login-tpl" type="text/x-jQuery-tmpl">
-<br>
-<br>
-<h1 id = "smd">CC&#39;<span id="pus">ed</span></h1>
-<br>
+  <br>
+  <br>
+  <h1 id = "smd">CC&#39;<span id="pus">ed</span></h1>
+  <br>
   <form id = "login-form">
     <input class = "loginInput inputUser" type="text" name="username" placeholder="Username"><br/>
     <input class = "loginInput inputPass" type="password" name="password" placeholder="Password">
@@ -31,14 +32,14 @@
 </script>
 
 <script id="signup-employer-student-tpl" type="text/x-jQuery-tmpl">
-  <form>
+  <div>
     <button class= "button employerButton" data-href="signUpEmployer">Employer</button>
     <button class= "button schoolButton" data-href="signUpSchool">School</button>
-  </form>
+  </div>
 </script>
 
 <script id="signup-employer-tpl" type="text/x-jQuery-tmpl">
-    <form id="employer-signup-form">
+  <form id="employer-signup-form">
     <h1 id = "smd">CC&#39;<span id="pus">ed</span></h1>
     <input class= "signUpInput" type="text" name="firstname" placeholder="First Name"><br>
     <input class= "signUpInput" type="text" name="lastname" placeholder="Last Name"><br>
@@ -49,7 +50,7 @@
     <br>
     <br>
     <button class= "button signUpButton" id="employer-signup">Sign Up</button>
-    </form>
+  </form>
 </script>
 
 <script id="signup-school-tpl" type="text/x-jQuery-tmpl">
@@ -79,7 +80,6 @@
 
 <script id = "student-map-tpl" type="text/x-jQuery-tmpl">
   <br style="background-color:white;">
-  <link href="https://fonts.googleapis.com/css?family=Encode+Sans+Semi+Condensed" rel="stylesheet">
 
   <div id="googleMap" style="width:100%;height:91%;"></div>
 
@@ -111,11 +111,14 @@
   window.onscroll = function() {scrollFunction()};
 
   function scrollFunction() {
+    // Check if 'myBtn' is even on the page
+    if (document.getElementById("myBtn")) {
       if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
           document.getElementById("myBtn").style.display = "block";
       } else {
           document.getElementById("myBtn").style.display = "none";
       }
+    }
   }
 
   // When the user clicks on the button, scroll to the top of the document
@@ -133,11 +136,8 @@
   <button class= "button studentButtons" data-href="studentMap">Map</button>
   <button class= "button studentButtons" data-href="studentTimesheet">Timesheet</button>
 
-  <table class= "timesheet">
-<tr> <td>Date</td> <td>Time In</td> <td>Time Out</td> <td>Employee Signature</td></tr>
-<tr><td></td><td></td><td></td><td></td></tr>
-<tr><td></td><td></td><td></td><td></td></tr>
-<tr><td></td><td></td><td></td><td></td></tr>
+  <table class="student-timesheet">
+    <tr> <td>Date</td> <td>Time In</td> <td>Time Out</td> <td>Employee Signature</td></tr>
   </table>
 </script>
 
@@ -186,7 +186,7 @@
         <th>First name</td>
         <th>Last name</td>
         <th>E-mail</td>
-        <th>Hours</td>
+        <th></td>
       </tr>
     </thead>
     <tbody></tbody>
@@ -217,9 +217,8 @@
 
     var pageLoadFunctions = {
       studentMap: function() {
-        window.navigator.geolocation.getCurrentPosition(function(position) {
-
-          var map = new google.maps.Map(document.getElementById("googleMap"), {
+        window.locationPromise.then(function(position) {
+          var map = new google.maps.Map(document.getElementById('googleMap'), {
             center: new google.maps.LatLng(position.coords.latitude,position.coords.longitude),
             zoom: 17,
             mapTypeControl: false,
@@ -230,7 +229,7 @@
         });
 
         // load upcoming opportunities
-        var events = firebase.database().ref('RegisteredEvents').
+        firebase.database().ref('RegisteredEvents').
           orderByChild('studentID').
           equalTo(window.sessionStorage.getItem('userID')).
           once('value', function(snapshot) {
@@ -244,48 +243,70 @@
             }
           });
 
-
         // load available opportunities
-        var events = firebase.database().ref("Events");
-        events.once('value', function(snapshot) {
-          snapshot.forEach(function(childSnapshot) {
-            appendAvailableEvent(childSnapshot.key, childSnapshot.val());
+        firebase.database().ref("Events").
+          once('value', function(snapshot) {
+            snapshot.forEach(function(childSnapshot) {
+              appendAvailableEvent(childSnapshot.key, childSnapshot.val());
+            });
           });
-        });
+      },
+      studentTimesheet: function() {
+        firebase.database().ref('CompletedEvents')
+          .orderByChild('studentID')
+          .equalTo(window.sessionStorage.getItem('userID'))
+          .once('value', function(snapshot) {
+            if (snapshot.val() !== null) {
+              snapshot.forEach(function(completedEventSnapshot) {
+                var timestamp = completedEventSnapshot.val().timestamp;
+                var eventID = completedEventSnapshot.val().eventID;
+                firebase.database().ref('Events/' + eventID).once('value', function(snapshot) {
+                  appendCompletedEvent(timestamp, snapshot.val());
+                });
+              });
+            }
+          });
       },
       employerSchedule: function(employer) {
         $('input[name="employerName"]').val(employer.name);
         $('input[name="employerID"').val(employer.id)
       },
       employerRoster: function() {
-        var database = firebase.database();
-
-        database.ref('Events').once('value', function(eventSnapshot) {
+        firebase.database().ref('Events').once('value', function(eventSnapshot) {
           eventSnapshot.forEach(function(event) {
             if (event.val().employerID === window.sessionStorage.getItem('userID')) {
-              database.ref('RegisteredEvents').
+              firebase.database().ref('RegisteredEvents').
                 orderByChild('eventID').
                 equalTo(event.key).
-                limitToFirst(1).
+                limitToFirst(5).
                 once('value', function(registeredEventSnapshot) {
                   if (registeredEventSnapshot.val() != null) {
                     registeredEventSnapshot.forEach(function(registeredEvent) {
-                      database.ref('Students/' + registeredEvent.val().studentID).once('value', function(studentSnapshot) {
+                      firebase.database().ref('Students/' + registeredEvent.val().studentID).once('value', function(studentSnapshot) {
                         if (studentSnapshot.val() != null) {
                           //make ordered list for roster
                           var student = $('<tr></tr>').
                             append('<td>' +studentSnapshot.val().firstName+ '</td>').
                             append('<td>' +studentSnapshot.val().lastName+ '</td>').
-                            append('<td>' +studentSnapshot.val().email+ '</td>');
-                            // add student hours
-                            // add button for employer to sign off on student
+                            append('<td>' +studentSnapshot.val().email+ '</td>').
+                            append('<td><button class="sign-off" data-eventID="' + registeredEvent.val().eventID + '" data-studentID="' +  registeredEvent.val().studentID + '">Sign off</button></td>');
                           $('#student-roster tbody').append(student);
                         }
                       });
                     });
+
+                    // Add listener for sign off clicks
+                    $('body').on('click', 'button.sign-off', function() {
+                      //TODO: Decide what to do with the sign up button
+
+                      var eventID = $(this).attr('data-eventID');
+                      var studentID = $(this).attr('data-studentID');
+
+                      writeCompletedEvent(eventID, studentID);
+                    });
                   }
                 });
-            }
+              }
           });
         });
       }
@@ -298,6 +319,15 @@
       append('<li>'+eventData.time+'</li>').
       append('<li>'+eventData.zip+'</li>');
       $('.upcoming-opportunities').append(event).append(eventInfo);
+    }
+
+    function appendCompletedEvent(timestamp, eventData) {
+      var date = new Date(timestamp);
+      var month = date.getMonth()+1;
+      var time = eventData.time.replace(/ /g,'').split('-');
+      var event = $('<tr></tr>').append('<td>' + month + '/' + date.getDate() + '</td><td>' + time[0] +'</td><td>' + time[1] +'</td><td>' + eventData.employerName + '</td>');
+
+      $('.student-timesheet').append(event);
     }
 
     function appendAvailableEvent(eventID, eventData) {
@@ -396,27 +426,27 @@
       });
     });
 
-      $('body').on('click', '#log-out', function() {
-        goToPage("login");
-        window.sessionStorage.clear();
-      });
+    $('body').on('click', '#log-out', function() {
+      goToPage("login");
+      window.sessionStorage.clear();
+    });
 
-      $('body').on('click', '#add-button', function() {
-        var form = $('#employer-events');
-        var addEvent= form.find('input[name=events]').val();
+    $('body').on('click', '#add-button', function() {
+      var form = $('#employer-events');
+      var addEvent= form.find('input[name=events]').val();
 
-        var checkedValues = $('.daysOfWeek:checked').map(function(index, value) {
-          return $(value).val();
-        }).get();
+      var checkedValues = $('.daysOfWeek:checked').map(function(index, value) {
+        return $(value).val();
+      }).get();
 
 
-        var addTime = form.find('input[name=time]').val();
-        var addZip = form.find('input[name=zipCode]').val();
-        var employerName = form.find('input[name="employerName"]').val();
-        var employerID = form.find('input[name="employerID"]').val();
+      var addTime = form.find('input[name=time]').val();
+      var addZip = form.find('input[name=zipCode]').val();
+      var employerName = form.find('input[name="employerName"]').val();
+      var employerID = form.find('input[name="employerID"]').val();
 
-        writeEventData(addEvent, checkedValues, addTime, addZip, employerName, employerID);
-      });
+      writeEventData(addEvent, checkedValues, addTime, addZip, employerName, employerID);
+    });
 </script>
 
 <script>
@@ -467,6 +497,14 @@
     firebase.database().ref('RegisteredEvents').push().set({
       eventID: eventID,
       studentID: studentID
+    });
+  }
+
+  function writeCompletedEvent(eventID, studentID) {
+    firebase.database().ref('CompletedEvents').push().set({
+      eventID: eventID,
+      studentID: studentID,
+      timestamp: Date.now()
     });
   }
 </script>
